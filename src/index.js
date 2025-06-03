@@ -3,6 +3,7 @@
  */
 import { APIParser } from './core/parser.js';
 import { CodeGenerator } from './core/generator.js';
+import { DataMapper } from './core/data-mapper.js';
 
 export class APICodeGenerator {
   constructor(options = {}) {
@@ -31,6 +32,34 @@ export class APICodeGenerator {
    */
   setOptions(options) {
     this.generator.options = { ...this.generator.options, ...options };
+  }
+  
+  /**
+   * 生成多平台代码
+   */
+  generateForPlatform(apiDoc, platform = 'web', options = {}) {
+    const ast = this.parser.parse(apiDoc);
+    
+    // 加载平台配置
+    const platformConfig = this.loadPlatformConfig(platform);
+    
+    // 创建数据映射器
+    const mapper = new DataMapper({ platform: platformConfig.responseMapping });
+    
+    // 配置生成器
+    const generator = new CodeGenerator({
+      ...platformConfig,
+      ...options,
+      dataMapper: mapper
+    });
+    
+    return generator.generate(ast);
+  }
+  
+  loadPlatformConfig(platform) {
+    // 加载平台配置逻辑
+    const configs = require('../config/platforms.json');
+    return configs.platforms[platform] || configs.platforms.web;
   }
 }
 

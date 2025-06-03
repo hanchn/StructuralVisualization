@@ -290,4 +290,40 @@ ${requestConfig}
     // 简化处理，返回any
     return 'any';
   }
+
+  // 在 CodeGenerator 类中添加
+  
+  /**
+   * 生成平台特定的响应处理
+   */
+  generatePlatformResponse(platform = 'standard') {
+    const mapper = new DataMapper({ platform });
+    const rules = mapper.mappingRules[platform];
+    
+    switch (platform) {
+      case 'wechat':
+        return `
+    // 微信小程序响应处理
+    if (response.${rules.code} !== 0) {
+      throw new Error(response.${rules.message} || '请求失败');
+    }
+    return response.${rules.success};`;
+    
+      case 'alipay':
+        return `
+    // 支付宝小程序响应处理
+    if (response.${rules.code} !== '200') {
+      throw new Error(response.${rules.message} || '请求失败');
+    }
+    return response.${rules.success};`;
+    
+      default:
+        return `
+    // 标准响应处理
+    if (response.${rules.code} !== 200) {
+      throw new Error(response.${rules.message} || '请求失败');
+    }
+    return response.${rules.success};`;
+    }
+  }
 }
