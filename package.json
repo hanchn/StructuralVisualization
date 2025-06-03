@@ -1,31 +1,55 @@
 {
-  "name": "api-code-generator",
+  "name": "frontend-api-generator",
   "version": "1.0.0",
-  "description": "基于AST的轻量化API代码生成器",
+  "description": "基于后端API数据生成前端接口代码的工具",
   "main": "src/index.js",
-  "type": "module",
+  "bin": {
+    "api-generator": "./bin/cli.js"
+  },
   "scripts": {
-    "dev": "node src/index.js",
-    "test": "node test/test.js",
-    "mock": "node scripts/mock.js",
-    "mock:server": "node scripts/mock-server.js",
-    "build": "rollup -c"
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "build": "node scripts/build.js",
+    "generate": "node bin/cli.js generate",
+    "mock": "node bin/cli.js mock",
+    "trust-check": "node bin/cli.js trust-check",
+    "diff-check": "node bin/cli.js diff-check"
   },
   "keywords": [
-    "ast",
     "api",
-    "code-generator",
-    "swagger",
-    "yapi",
-    "mock"
+    "generator",
+    "frontend",
+    "mock",
+    "typescript",
+    "ast"
   ],
   "author": "Your Name",
   "license": "MIT",
-  "devDependencies": {
-    "rollup": "^3.0.0"
-  },
   "dependencies": {
+    "@babel/parser": "^7.23.0",
+    "@babel/traverse": "^7.23.0",
+    "@babel/types": "^7.23.0",
+    "@babel/generator": "^7.23.0",
+    "commander": "^11.0.0",
+    "handlebars": "^4.7.8",
+    "express": "^4.18.2",
     "cors": "^2.8.5",
-    "express": "^4.18.2"
+    "chalk": "^4.1.2",
+    "inquirer": "^8.2.6",
+    "fs-extra": "^11.1.1",
+    "lodash": "^4.17.21",
+    "ajv": "^8.12.0",
+    "yaml": "^2.3.4"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.1",
+    "eslint": "^8.52.0",
+    "prettier": "^3.0.3"
+  },
+  "engines": {
+    "node": ">=14.0.0"
   }
 }

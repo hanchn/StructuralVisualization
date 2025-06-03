@@ -1,73 +1,129 @@
 /**
- * API代码生成器主入口
+ * 前端接口代码生成器 - 主入口
+ * @author Your Name
+ * @version 1.0.0
  */
-import { APIParser } from './core/parser.js';
-import { CodeGenerator } from './core/generator.js';
-import { DataMapper } from './core/data-mapper.js';
 
-export class APICodeGenerator {
+const CodeGenerator = require('./core/code-generator');
+const MockGenerator = require('./core/mock-generator');
+const ASTAnalyzer = require('./core/ast-analyzer');
+const NamingGenerator = require('./core/naming-generator');
+const ConfigManager = require('./core/config-manager');
+const TrustEvaluator = require('./core/trust-evaluator');
+const DiffDetector = require('./core/diff-detector');
+const CodeProtector = require('./core/code-protector');
+
+class APICodeGenerator {
   constructor(options = {}) {
-    this.parser = new APIParser();
-    this.generator = new CodeGenerator(options);
+    this.config = new ConfigManager(options.configPath);
+    this.codeGenerator = new CodeGenerator(this.config);
+    this.mockGenerator = new MockGenerator(this.config);
+    this.astAnalyzer = new ASTAnalyzer(this.config);
+    this.namingGenerator = new NamingGenerator(this.config);
+    this.trustEvaluator = new TrustEvaluator(this.config);
+    this.diffDetector = new DiffDetector(this.config);
+    this.codeProtector = new CodeProtector(this.config);
   }
 
   /**
-   * 从API文档生成前端代码
+   * 生成API代码
    * @param {Object} apiDoc - API文档
-   * @param {string} format - 文档格式
-   * @returns {string} 生成的代码
+   * @param {Object} options - 生成选项
    */
-  generate(apiDoc, format = 'swagger') {
-    // 1. 解析API文档为AST
-    const ast = this.parser.parse(apiDoc, format);
-    
-    // 2. 从AST生成代码
-    const code = this.generator.generate(ast);
-    
-    return code;
+  async generate(apiDoc, options = {}) {
+    try {
+      console.log('🚀 开始生成API代码...');
+      
+      // 1. 评估API文档可信度
+      const trustScore = await this.trustEvaluator.evaluateAPITrust(apiDoc);
+      console.log(`📊 API文档可信度: ${(trustScore.overall * 100).toFixed(1)}%`);
+      
+      if (trustScore.overall < this.config.get('codeProtection.trustThreshold', 0.6)) {
+        console.warn('⚠️  API文档可信度较低，建议人工审核');
+        if (!options.force) {
+          throw new Error('API文档可信度不足，使用 --force 参数强制生成');
+        }
+      }
+      
+      // 2. 检测现有代码
+      const existingCode = await this.astAnalyzer.analyzeExistingCode();
+      
+      // 3. 检测Mock差异
+      const mockDifferences = await this.diffDetector.detectMockDifferences(apiDoc);
+      
+      // 4. 确定更新策略
+      const updateStrategy = this.codeProtector.determineUpdateStrategy({
+        apiDoc,
+        trustScore,
+        existingCode,
+        mockDifferences
+      });
+      
+      console.log(`📋 更新策略: ${updateStrategy.strategy}`);
+      
+      // 5. 生成代码
+      const result = await this.codeGenerator.generate(apiDoc, {
+        ...options,
+        updateStrategy,
+        existingCode
+      });
+      
+      // 6. 生成Mock数据（如果启用）
+      if (this.config.get('mock.enabled', true)) {
+        await this.mockGenerator.generate(apiDoc, options);
+      }
+      
+      console.log('✅ API代码生成完成！');
+      return result;
+      
+    } catch (error) {
+      console.error('❌ 生成失败:', error.message);
+      throw error;
+    }
   }
 
   /**
-   * 设置生成选项
+   * 启动Mock服务器
+   * @param {Object} options - 服务器选项
    */
-  setOptions(options) {
-    this.generator.options = { ...this.generator.options, ...options };
+  async startMockServer(options = {}) {
+    return this.mockGenerator.startServer(options);
   }
-  
+
   /**
-   * 生成多平台代码
+   * 检查API文档可信度
+   * @param {Object} apiDoc - API文档
    */
-  generateForPlatform(apiDoc, platform = 'web', options = {}) {
-    const ast = this.parser.parse(apiDoc);
-    
-    // 加载平台配置
-    const platformConfig = this.loadPlatformConfig(platform);
-    
-    // 创建数据映射器
-    const mapper = new DataMapper({ platform: platformConfig.responseMapping });
-    
-    // 配置生成器
-    const generator = new CodeGenerator({
-      ...platformConfig,
-      ...options,
-      dataMapper: mapper
-    });
-    
-    return generator.generate(ast);
+  async checkTrust(apiDoc) {
+    return this.trustEvaluator.evaluateAPITrust(apiDoc);
   }
-  
-  loadPlatformConfig(platform) {
-    // 加载平台配置逻辑
-    const configs = require('../config/platforms.json');
-    return configs.platforms[platform] || configs.platforms.web;
+
+  /**
+   * 检测Mock差异
+   * @param {Object} apiDoc - API文档
+   */
+  async checkDifferences(apiDoc) {
+    return this.diffDetector.detectMockDifferences(apiDoc);
+  }
+
+  /**
+   * 生成差异报告
+   * @param {Object} apiDoc - API文档
+   */
+  async generateDiffReport(apiDoc) {
+    const differences = await this.checkDifferences(apiDoc);
+    return this.diffDetector.generateReport(differences);
   }
 }
 
-// 默认导出
-export default APICodeGenerator;
-
-// 便捷方法
-export function generateAPICode(apiDoc, options = {}) {
-  const generator = new APICodeGenerator(options);
-  return generator.generate(apiDoc, options.format || 'swagger');
-}
+module.exports = {
+  APICodeGenerator,
+  CodeGenerator,
+  MockGenerator,
+  ASTAnalyzer,
+  NamingGenerator,
+  ConfigManager,
+  TrustEvaluator,
+  DiffDetector,
+  CodeProtector
+};
