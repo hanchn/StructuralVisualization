@@ -1,129 +1,93 @@
-/**
- * 前端接口代码生成器 - 主入口
- * @author Your Name
- * @version 1.0.0
- */
+const JsonParser = require('./parser/json-parser');
+const CodeGenerator = require('./generator/code-generator');
+const fs = require('fs-extra');
+const path = require('path');
 
-const CodeGenerator = require('./core/code-generator');
-const MockGenerator = require('./core/mock-generator');
-const ASTAnalyzer = require('./core/ast-analyzer');
-const NamingGenerator = require('./core/naming-generator');
-const ConfigManager = require('./core/config-manager');
-const TrustEvaluator = require('./core/trust-evaluator');
-const DiffDetector = require('./core/diff-detector');
-const CodeProtector = require('./core/code-protector');
-
-class APICodeGenerator {
+class ApiCodeGenerator {
   constructor(options = {}) {
-    this.config = new ConfigManager(options.configPath);
-    this.codeGenerator = new CodeGenerator(this.config);
-    this.mockGenerator = new MockGenerator(this.config);
-    this.astAnalyzer = new ASTAnalyzer(this.config);
-    this.namingGenerator = new NamingGenerator(this.config);
-    this.trustEvaluator = new TrustEvaluator(this.config);
-    this.diffDetector = new DiffDetector(this.config);
-    this.codeProtector = new CodeProtector(this.config);
+    this.outputDir = options.outputDir || './output';
+    this.parser = new JsonParser();
+    this.generator = new CodeGenerator();
   }
 
   /**
-   * 生成API代码
-   * @param {Object} apiDoc - API文档
-   * @param {Object} options - 生成选项
+   * 生成代码的主方法
+   * @param {Object} apiData - API数据
+   * @param {string} outputPath - 输出路径（可选）
+   * @returns {Object} 生成结果
    */
-  async generate(apiDoc, options = {}) {
+  async generateCode(apiData, outputPath = null) {
     try {
-      console.log('🚀 开始生成API代码...');
+      // 1. 解析JSON数据
+      const parsedData = this.parser.parse(apiData);
       
-      // 1. 评估API文档可信度
-      const trustScore = await this.trustEvaluator.evaluateAPITrust(apiDoc);
-      console.log(`📊 API文档可信度: ${(trustScore.overall * 100).toFixed(1)}%`);
+      // 2. 生成代码
+      const generatedCode = this.generator.generate(parsedData);
       
-      if (trustScore.overall < this.config.get('codeProtection.trustThreshold', 0.6)) {
-        console.warn('⚠️  API文档可信度较低，建议人工审核');
-        if (!options.force) {
-          throw new Error('API文档可信度不足，使用 --force 参数强制生成');
-        }
+      // 3. 写入文件（如果指定了输出路径）
+      if (outputPath) {
+        await this.writeFiles(generatedCode, outputPath);
       }
       
-      // 2. 检测现有代码
-      const existingCode = await this.astAnalyzer.analyzeExistingCode();
-      
-      // 3. 检测Mock差异
-      const mockDifferences = await this.diffDetector.detectMockDifferences(apiDoc);
-      
-      // 4. 确定更新策略
-      const updateStrategy = this.codeProtector.determineUpdateStrategy({
-        apiDoc,
-        trustScore,
-        existingCode,
-        mockDifferences
-      });
-      
-      console.log(`📋 更新策略: ${updateStrategy.strategy}`);
-      
-      // 5. 生成代码
-      const result = await this.codeGenerator.generate(apiDoc, {
-        ...options,
-        updateStrategy,
-        existingCode
-      });
-      
-      // 6. 生成Mock数据（如果启用）
-      if (this.config.get('mock.enabled', true)) {
-        await this.mockGenerator.generate(apiDoc, options);
-      }
-      
-      console.log('✅ API代码生成完成！');
-      return result;
-      
+      return {
+        success: true,
+        data: generatedCode,
+        message: 'Code generated successfully'
+      };
     } catch (error) {
-      console.error('❌ 生成失败:', error.message);
-      throw error;
+      return {
+        success: false,
+        error: error.message,
+        message: 'Failed to generate code'
+      };
     }
   }
 
   /**
-   * 启动Mock服务器
-   * @param {Object} options - 服务器选项
+   * 写入生成的代码到文件
    */
-  async startMockServer(options = {}) {
-    return this.mockGenerator.startServer(options);
+  async writeFiles(generatedCode, outputPath) {
+    const { apiCode, logicCode, fileName } = generatedCode;
+    
+    // 确保输出目录存在
+    await fs.ensureDir(outputPath);
+    
+    // 写入API文件
+    const apiFilePath = path.join(outputPath, `${fileName}-api.js`);
+    await fs.writeFile(apiFilePath, apiCode, 'utf8');
+    
+    // 写入逻辑文件
+    const logicFilePath = path.join(outputPath, `${fileName}-logic.js`);
+    await fs.writeFile(logicFilePath, logicCode, 'utf8');
+    
+    console.log(`✅ Generated files:`);
+    console.log(`   📄 ${apiFilePath}`);
+    console.log(`   📄 ${logicFilePath}`);
   }
 
   /**
-   * 检查API文档可信度
-   * @param {Object} apiDoc - API文档
+   * 从文件读取JSON数据并生成代码
    */
-  async checkTrust(apiDoc) {
-    return this.trustEvaluator.evaluateAPITrust(apiDoc);
-  }
-
-  /**
-   * 检测Mock差异
-   * @param {Object} apiDoc - API文档
-   */
-  async checkDifferences(apiDoc) {
-    return this.diffDetector.detectMockDifferences(apiDoc);
-  }
-
-  /**
-   * 生成差异报告
-   * @param {Object} apiDoc - API文档
-   */
-  async generateDiffReport(apiDoc) {
-    const differences = await this.checkDifferences(apiDoc);
-    return this.diffDetector.generateReport(differences);
+  async generateFromFile(inputFile, outputPath = null) {
+    try {
+      const jsonData = await fs.readJson(inputFile);
+      return await this.generateCode(jsonData, outputPath);
+    } catch (error) {
+      throw new Error(`Failed to read input file: ${error.message}`);
+    }
   }
 }
 
-module.exports = {
-  APICodeGenerator,
-  CodeGenerator,
-  MockGenerator,
-  ASTAnalyzer,
-  NamingGenerator,
-  ConfigManager,
-  TrustEvaluator,
-  DiffDetector,
-  CodeProtector
+// 导出类和便捷方法
+module.exports = ApiCodeGenerator;
+
+// 便捷方法
+module.exports.generateCode = async (apiData, outputPath = null) => {
+  const generator = new ApiCodeGenerator();
+  return await generator.generateCode(apiData, outputPath);
+};
+
+module.exports.generateFromFile = async (inputFile, outputPath = null) => {
+  const generator = new ApiCodeGenerator();
+  return await generator.generateFromFile(inputFile, outputPath);
 };

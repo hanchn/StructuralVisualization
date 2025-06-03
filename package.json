@@ -1,55 +1,25 @@
 {
-  "name": "frontend-api-generator",
+  "name": "api-code-generator",
   "version": "1.0.0",
-  "description": "基于后端API数据生成前端接口代码的工具",
+  "description": "A simple RESTful API code generator that supports body, query, and path parameters",
   "main": "src/index.js",
-  "bin": {
-    "api-generator": "./bin/cli.js"
-  },
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "nodemon src/index.js",
     "test": "jest",
-    "test:watch": "jest --watch",
-    "build": "node scripts/build.js",
-    "generate": "node bin/cli.js generate",
-    "mock": "node bin/cli.js mock",
-    "trust-check": "node bin/cli.js trust-check",
-    "diff-check": "node bin/cli.js diff-check"
+    "dev": "node examples/demo.js",
+    "build": "node src/index.js"
   },
   "keywords": [
     "api",
-    "generator",
-    "frontend",
-    "mock",
-    "typescript",
-    "ast"
+    "code-generator",
+    "restful",
+    "javascript"
   ],
   "author": "Your Name",
   "license": "MIT",
   "dependencies": {
-    "@babel/parser": "^7.23.0",
-    "@babel/traverse": "^7.23.0",
-    "@babel/types": "^7.23.0",
-    "@babel/generator": "^7.23.0",
-    "commander": "^11.0.0",
-    "handlebars": "^4.7.8",
-    "express": "^4.18.2",
-    "cors": "^2.8.5",
-    "chalk": "^4.1.2",
-    "inquirer": "^8.2.6",
-    "fs-extra": "^11.1.1",
-    "lodash": "^4.17.21",
-    "ajv": "^8.12.0",
-    "yaml": "^2.3.4"
+    "fs-extra": "^11.1.1"
   },
   "devDependencies": {
-    "jest": "^29.7.0",
-    "nodemon": "^3.0.1",
-    "eslint": "^8.52.0",
-    "prettier": "^3.0.3"
-  },
-  "engines": {
-    "node": ">=14.0.0"
+    "jest": "^29.5.0"
   }
 }

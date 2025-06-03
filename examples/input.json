@@ -1,0 +1,52 @@
+{
+  "pid": "p001",
+  "cid": "c001",
+  "baseUrl": "https://api.example.com",
+  "apis": [
+    {
+      "name": "getUserById",
+      "path": "/users/:id",
+      "method": "GET",
+      "pathParams": ["id"],
+      "queryParams": ["include", "fields"],
+      "bodyParams": [],
+      "description": "根据ID获取用户信息"
+    },
+    {
+      "name": "createUser",
+      "path": "/users",
+      "method": "POST",
+      "pathParams": [],
+      "queryParams": [],
+      "bodyParams": ["name", "email", "password"],
+      "description": "创建新用户"
+    },
+    {
+      "name": "updateUser",
+      "path": "/users/:id",
+      "method": "PUT",
+      "pathParams": ["id"],
+      "queryParams": ["notify"],
+      "bodyParams": ["name", "email"],
+      "description": "更新用户信息"
+    },
+    {
+      "name": "deleteUser",
+      "path": "/users/:id",
+      "method": "DELETE",
+      "pathParams": ["id"],
+      "queryParams": ["force"],
+      "bodyParams": [],
+      "description": "删除用户"
+    },
+    {
+      "name": "searchUsers",
+      "path": "/users/search",
+      "method": "GET",
+      "pathParams": [],
+      "queryParams": ["keyword", "page", "limit", "sort"],
+      "bodyParams": [],
+      "description": "搜索用户"
+    }
+  ]
+}
