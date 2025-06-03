@@ -1,0 +1,31 @@
+{
+  "name": "api-code-generator",
+  "version": "1.0.0",
+  "description": "基于AST的轻量化API代码生成器",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node src/index.js",
+    "test": "node test/test.js",
+    "mock": "node scripts/mock.js",
+    "mock:server": "node scripts/mock-server.js",
+    "build": "rollup -c"
+  },
+  "keywords": [
+    "ast",
+    "api",
+    "code-generator",
+    "swagger",
+    "yapi",
+    "mock"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "devDependencies": {
+    "rollup": "^3.0.0"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2"
+  }
+}

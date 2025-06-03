@@ -1,0 +1,110 @@
+{
+  "getUsers": {
+    "method": "GET",
+    "path": "/users",
+    "data": {
+      "code": 147,
+      "message": "李四",
+      "data": {
+        "list": [
+          {
+            "id": 161,
+            "name": "王五",
+            "email": "user1055@example.com",
+            "age": 634,
+            "status": "李四",
+            "createdAt": "2025-06-03T03:26:35.650Z"
+          },
+          {
+            "id": 106,
+            "name": "王五",
+            "email": "user7411@example.com",
+            "age": 704,
+            "status": "孙八",
+            "createdAt": "2025-06-03T03:26:35.650Z"
+          },
+          {
+            "id": 377,
+            "name": "赵六",
+            "email": "user92@example.com",
+            "age": 143,
+            "status": "李四",
+            "createdAt": "2025-06-03T03:26:35.650Z"
+          },
+          {
+            "id": 941,
+            "name": "孙八",
+            "email": "user4851@example.com",
+            "age": 793,
+            "status": "赵六",
+            "createdAt": "2025-06-03T03:26:35.650Z"
+          },
+          {
+            "id": 703,
+            "name": "王五",
+            "email": "user7355@example.com",
+            "age": 866,
+            "status": "赵六",
+            "createdAt": "2025-06-03T03:26:35.650Z"
+          }
+        ],
+        "total": 423,
+        "page": 229,
+        "size": 199
+      }
+    }
+  },
+  "createUser": {
+    "method": "POST",
+    "path": "/users",
+    "data": {
+      "code": 200,
+      "message": "success",
+      "data": {
+        "id": 3906,
+        "name": "李四",
+        "timestamp": "2025-06-03T03:26:35.650Z"
+      }
+    }
+  },
+  "getUserById": {
+    "method": "GET",
+    "path": "/users/{id}",
+    "data": {
+      "code": 942,
+      "message": "钱七",
+      "data": {
+        "id": 379,
+        "name": "吴十",
+        "email": "李四",
+        "age": 736,
+        "status": "李四",
+        "createdAt": "2025-06-03T03:26:35.650Z"
+      }
+    }
+  },
+  "updateUser": {
+    "method": "PUT",
+    "path": "/users/{id}",
+    "data": {
+      "code": 13,
+      "message": "赵六",
+      "data": {
+        "id": 900,
+        "name": "李四",
+        "email": "周九",
+        "age": 469,
+        "status": "王五",
+        "updatedAt": "2025-06-03T03:26:35.650Z"
+      }
+    }
+  },
+  "deleteUser": {
+    "method": "DELETE",
+    "path": "/users/{id}",
+    "data": {
+      "code": 991,
+      "message": "王五"
+    }
+  }
+}
